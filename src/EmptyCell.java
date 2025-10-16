@@ -1,8 +1,0 @@
-//public class EmptyCell extends Cell {
-//    private String representation="   ";
-//
-//    public String getRepresentation() {
-//        return this.representation;
-//    }
-//
-//}
