@@ -1,5 +1,20 @@
-abstract class Cell {
-    abstract String setRepresentation();
+public class Cell {
+    private String representation;
 
-    abstract String getRepresentation();
+    public Cell() {
+        this("   ");
+    }
+
+    public Cell(String representation) {
+        this.representation = representation;
+    }
+
+    public String getRepresentation() {
+        return this.representation;
+    }
+
+    //m
+    public void setRepresentation(String representation) {
+        this.representation = representation;
+    }
 }
