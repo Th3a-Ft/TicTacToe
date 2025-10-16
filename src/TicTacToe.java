@@ -11,19 +11,18 @@ public class TicTacToe {
 
     TicTacToe(int size) {
         this.size = size;
+        initBoard2D(size);
     }
 
-    private ArrayList<ArrayList<Cell>> initBoard2D(int size) {
+    public ArrayList<ArrayList<Cell>> initBoard2D(int size) {
         board = new ArrayList();
 
         for (int i = 0; i < size; ++i) {
             ArrayList<Cell> row = new ArrayList();
-
             for (int j = 0; j < size; ++j) {
                 row.add(new EmptyCell());
             }
             board.add(row);
-            System.out.println(row);
         }
         return board;
     }
@@ -37,10 +36,11 @@ public class TicTacToe {
     }
 
     public void display() {
-        for (ArrayList<Cell> row : this.initBoard2D(this.size)) {
+        for (ArrayList<Cell> row : this.board) {
             for (Cell cell : row) {
-                System.out.print(cell);
+                System.out.print(cell.getRepresentation() + "|");
             }
+            System.out.println();
         }
     }
 
@@ -55,13 +55,11 @@ public class TicTacToe {
             System.out.print("Enter column: ");
             int col = checkInput(input.nextInt());
 
-
             coordinates.add(0, row);
             coordinates.add(1, col);
 
-
-            System.out.print("x " + coordinates.get(0));
-            System.out.print("y " + coordinates.get(1));
+//            System.out.print("x " + coordinates.get(0));
+//            System.out.print("y " + coordinates.get(1));
 
             int x = coordinates.get(0);
             int y = coordinates.get(1);
@@ -71,18 +69,19 @@ public class TicTacToe {
                 turnCorrrect = true;
             } else {
                 System.out.println("This cell is already taken, choose another one");
-                turnCorrrect = false;
             }
+            setOwner(x,y,this.player);
         }
 
         System.out.println(coordinates);
+
         return coordinates;
     }
 
     private int checkInput(int coordinate) {
         boolean incorrect = true;
         while (incorrect) {
-            if (coordinate > size) {
+            if (coordinate >= size) {
                 System.out.println("Invalid input: you must enter a number smaller than " + size + ".");
                 System.out.print("Enter again: ");
                 coordinate = input.nextInt();
@@ -93,12 +92,15 @@ public class TicTacToe {
         return coordinate;
     }
 
-    public void setOwner(int x,int y, Player player) {
+    public void setOwner(int x, int y, Player player) {
         x = coordinates.get(0);
         y = coordinates.get(1);
 
         this.player = player;
-        player.getRepresentation();
+        //String playerRepresentation = player.getRepresentation();
+
+        board.get(x).set(y,new CrossCell());
+        display();
     }
 
 }
