@@ -4,7 +4,8 @@ import java.util.Scanner;
 
 public class TicTacToe {
     private int size;
-    private Player player;
+    private Player firstPlayer;
+    private Player secondPlayer;
     private ArrayList<ArrayList<Cell>> board;
     private ArrayList<Integer> coordinates;
     private Player currentPlayer;
@@ -137,68 +138,72 @@ public class TicTacToe {
      * Launch the game, let both players play one after another and end the game if a condition is met (victory or draw)
      */
     public void play() {
-        Player firstPlayer = initPlayer();
-        Player secondPlayer = initPlayer();
-        currentPlayer = firstPlayer;
 
-        boolean readyToPlay = false;
-        while (!readyToPlay) {
-            if (firstPlayer.getRepresentation().equals(secondPlayer.getRepresentation())) {
-                System.out.println("You have the same pawn, please try again to be able to play");
-                firstPlayer = initPlayer();
-                secondPlayer = initPlayer();
-            } else {
-                readyToPlay = true;
-            }
-        }
+        initPlayers();
+        currentPlayer = firstPlayer;
 
         System.out.println(firstPlayer.getName() + " against " + secondPlayer.getName());
 
-        while (!isOver()) {
+        while (!isFull()) {
             getMoveFromPlayer();
-            if (isOver()) {
-                System.out.print("Congrats " + firstPlayer.getName() + "! You win this game against " + secondPlayer.getName());
-                System.exit(0);
-            } else
-                if (isFull()) {
-                System.out.print("It's a draw");
-                System.exit(0);
-            } else {
+            currentPlayer = (currentPlayer == firstPlayer) ? secondPlayer : firstPlayer;
+            if (!isOver()) {
                 System.out.println(currentPlayer.getName() + " it's your turn to play");
-                currentPlayer = (currentPlayer == firstPlayer) ? secondPlayer : firstPlayer;
             }
+
         }
     }
 
     /**
-     * Create a player with a name, each player has the choice to play X or O
+     * Initialize the players and give a representation (x or o) to the second player according the representation chosen by the first player
      *
-     * @return the player with his name and his pawn (X or O)
      */
-    private Player initPlayer() {
+    public void initPlayers() {
+        firstPlayer = new Player(initPlayerName(), initChoicePlayer());
+
+        System.out.println(firstPlayer.getName() + " " + firstPlayer.getRepresentation());
+
+        if (firstPlayer.getRepresentation().equals(" X ")) {
+            secondPlayer = new Player(initPlayerName(), " O ");
+            System.out.println(secondPlayer.getName() + " " + secondPlayer.getRepresentation());
+        } else if (firstPlayer.getRepresentation().equals(" O ")) {
+            secondPlayer = new Player(initPlayerName(), " X ");
+            System.out.println(secondPlayer.getName() + " " + secondPlayer.getRepresentation());
+        }
+    }
+
+    /**
+     * Initialize the name of a player
+     * @return (string) name of the player
+     */
+    private String initPlayerName() {
         System.out.println("Enter player name: ");
         String namePlayer = input.nextLine();
         System.out.println("Welcome " + namePlayer + "! ");
+        return namePlayer;
+    }
+
+    /**
+     * Initialize the representation (x or o) choosen by the first player
+     * @return (string) representation of the player " X " or " O "
+     */
+    private String initChoicePlayer() {
         System.out.println("Choose between X and O to play:");
         String choicePlayer = input.nextLine().toUpperCase();
 
-        boolean incorrectChoice = true;
-
-        while (incorrectChoice)
-            if (choicePlayer.equals("X")) {
-                player = new Player(namePlayer, " X ");
-                incorrectChoice = false;
-            } else if (choicePlayer.equals("O")) {
-                player = new Player(namePlayer, " O ");
-                incorrectChoice = false;
-            } else {
-                System.out.println("Invalid input, try again");
-                choicePlayer = input.nextLine().toUpperCase();
-
-            }
-        System.out.println(player.getName() + " " + player.getRepresentation());
-        return player;
+        while (!choicePlayer.equals("X") && !choicePlayer.equals("O")) {
+            System.out.println("Invalid input, try again");
+            choicePlayer = input.nextLine().toUpperCase();
+        }
+        if (choicePlayer.equals("X")) {
+            return " X ";
+        }
+        if (choicePlayer.equals("O")) {
+            return " O ";
+        }
+        return choicePlayer;
     }
+
 
     /**
      * Check if the bord is full or not
@@ -305,9 +310,6 @@ public class TicTacToe {
 
     private boolean isOver() {
         if (diagDownWinner() || diagUpWinner() || rowWinner() || colWinner()) {
-            return true;
-        } else if (isFull()) {
-            System.out.println("It's a draw");
             return true;
         }
         return false;

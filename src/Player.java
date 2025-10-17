@@ -2,6 +2,10 @@ public class Player {
     private String name;
     private String representation;
 
+    public Player(){
+
+    }
+
     /**
      * Constructor of the player
      * @param name
