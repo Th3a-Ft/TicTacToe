@@ -77,6 +77,7 @@ public class TicTacToe {
 
         while (!turnCorrrect) {
             System.out.print("Enter row: ");
+
             int row = checkInput(input.nextInt());
 
             System.out.print("Enter column: ");
@@ -138,19 +139,20 @@ public class TicTacToe {
      * Launch the game, let both players play one after another and end the game if a condition is met (victory or draw)
      */
     public void play() {
-
         initPlayers();
         currentPlayer = firstPlayer;
 
         System.out.println(firstPlayer.getName() + " against " + secondPlayer.getName());
 
-        while (!isFull()) {
+        while (true) {
             getMoveFromPlayer();
-            currentPlayer = (currentPlayer == firstPlayer) ? secondPlayer : firstPlayer;
-            if (!isOver()) {
-                System.out.println(currentPlayer.getName() + " it's your turn to play");
-            }
 
+            if (isOver()) {
+//                System.out.println(currentPlayer.getName() + " you won!");
+                break;
+            }
+            currentPlayer = (currentPlayer == firstPlayer) ? secondPlayer : firstPlayer;
+            System.out.println(currentPlayer.getName() + " it's your turn to play");
         }
     }
 
@@ -174,6 +176,7 @@ public class TicTacToe {
 
     /**
      * Initialize the name of a player
+     *
      * @return (string) name of the player
      */
     private String initPlayerName() {
@@ -185,6 +188,7 @@ public class TicTacToe {
 
     /**
      * Initialize the representation (x or o) choosen by the first player
+     *
      * @return (string) representation of the player " X " or " O "
      */
     private String initChoicePlayer() {
@@ -218,7 +222,6 @@ public class TicTacToe {
                 }
             }
         }
-        System.out.println("The board is full.");
         return true;
     }
 
@@ -308,8 +311,17 @@ public class TicTacToe {
         return true;
     }
 
+    /**
+     * Check if a condition to end the game is met
+     *
+     * @return (boolean) if true, a player won the game or the board is full
+     */
     private boolean isOver() {
         if (diagDownWinner() || diagUpWinner() || rowWinner() || colWinner()) {
+            System.out.println(currentPlayer.getName() + " won!");
+            return true;
+        } else if (isFull()) {
+            System.out.println("The board is full.");
             return true;
         }
         return false;
