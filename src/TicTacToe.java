@@ -1,6 +1,11 @@
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
+
+
+import static view.InteractionUser.*;
+import static view.View.emptyMessage;
+import static view.View.message;
 
 public class TicTacToe {
     private int size;
@@ -10,7 +15,6 @@ public class TicTacToe {
     private ArrayList<Integer> coordinates;
     private Player currentPlayer;
 
-    Scanner input = new Scanner(System.in);
 
     /**
      * Constructor of the class TicTacToe
@@ -46,7 +50,7 @@ public class TicTacToe {
      *
      * @param size = size of the board
      */
-    public void initBoard1D(int size) {
+    private void initBoard1D(int size) {
         ArrayList<Cell> board = new ArrayList();
         while (size > board.size()) {
             board.add(new Cell());
@@ -62,45 +66,36 @@ public class TicTacToe {
             for (Cell cell : row) {
                 System.out.print(cell.getRepresentation() + "|");
             }
-            System.out.println();
+            emptyMessage();
         }
     }
 
     /**
      * The player enter an int for the row and for the col and check if the Cell is empty or not
-     *
-     * @return the coordinates enter by the player (x,y)
      */
-    private ArrayList<Integer> getMoveFromPlayer() {
+    private void getMoveFromPlayer() {
         boolean turnCorrrect = false;
         coordinates = new ArrayList<>();
 
         while (!turnCorrrect) {
-            System.out.print("Enter row: ");
+            message("Enter row: ");
 
-            int row = checkInput(input.nextInt());
+            int row = checkInput(intInput());
 
-            System.out.print("Enter column: ");
-            int col = checkInput(input.nextInt());
+            message("Enter column: ");
+            int col = checkInput(intInput());
 
             coordinates.add(0, row);
             coordinates.add(1, col);
 
-            int x = coordinates.get(0);
-            int y = coordinates.get(1);
-
-            if (board.get(x).get(y).getRepresentation().equals("   ")) {
-                System.out.println("Empty cell, you can play");
+            if (board.get(row).get(col).getRepresentation().equals("   ")) {
+                message("Empty cell, you can play");
                 turnCorrrect = true;
             } else {
-                System.out.println("This cell is already taken, choose another one");
+                message("This cell is already taken, choose another one");
             }
-            setOwner(x, y, currentPlayer);
+            setOwner(row, col, currentPlayer);
         }
-
-        System.out.println(coordinates);
-
-        return coordinates;
     }
 
     /**
@@ -113,9 +108,9 @@ public class TicTacToe {
         boolean incorrect = true;
         while (incorrect) {
             if (coordinate >= size || coordinate < 0) {
-                System.out.println("Invalid input: you must enter a number smaller than " + size + "and greater than 0.");
-                System.out.print("Enter again: ");
-                coordinate = input.nextInt();
+                message("Invalid input: you must enter a number smaller than " + size + "and greater than 0.");
+                message("Enter again: ");
+                coordinate = intInput();
             } else {
                 incorrect = false;
             }
@@ -142,35 +137,60 @@ public class TicTacToe {
         initPlayers();
         currentPlayer = firstPlayer;
 
-        System.out.println(firstPlayer.getName() + " against " + secondPlayer.getName());
+        message(firstPlayer.getName() + " against " + secondPlayer.getName());
 
         while (true) {
-            getMoveFromPlayer();
+            if (currentPlayer instanceof ArtificialPlayer) {
+                getMoveFromBot();
+            } else {
+                getMoveFromPlayer();
+            }
 
             if (isOver()) {
-//                System.out.println(currentPlayer.getName() + " you won!");
                 break;
             }
             currentPlayer = (currentPlayer == firstPlayer) ? secondPlayer : firstPlayer;
-            System.out.println(currentPlayer.getName() + " it's your turn to play");
+            message(currentPlayer.getName() + " it's your turn to play");
         }
     }
 
     /**
      * Initialize the players and give a representation (x or o) to the second player according the representation chosen by the first player
-     *
+     * The type of player(s) initialized is given by the user through the method typeOfPlayer()
      */
-    public void initPlayers() {
-        firstPlayer = new Player(initPlayerName(), initChoicePlayer());
+    private void initPlayers() {
 
-        System.out.println(firstPlayer.getName() + " " + firstPlayer.getRepresentation());
+        switch (typeOfPlayer()) {
+            case 1:
+                firstPlayer = new Player(initPlayerName(), initChoicePlayer());
 
-        if (firstPlayer.getRepresentation().equals(" X ")) {
-            secondPlayer = new Player(initPlayerName(), " O ");
-            System.out.println(secondPlayer.getName() + " " + secondPlayer.getRepresentation());
-        } else if (firstPlayer.getRepresentation().equals(" O ")) {
-            secondPlayer = new Player(initPlayerName(), " X ");
-            System.out.println(secondPlayer.getName() + " " + secondPlayer.getRepresentation());
+                message(firstPlayer.getName() + " " + firstPlayer.getRepresentation());
+
+                if (firstPlayer.getRepresentation().equals(" X ")) {
+                    secondPlayer = new Player(initPlayerName(), " O ");
+                    message(secondPlayer.getName() + " " + secondPlayer.getRepresentation());
+                } else if (firstPlayer.getRepresentation().equals(" O ")) {
+                    secondPlayer = new Player(initPlayerName(), " X ");
+                    message(secondPlayer.getName() + " " + secondPlayer.getRepresentation());
+                }
+                break;
+            case 2:
+                firstPlayer = new Player(initPlayerName(), initChoicePlayer());
+
+                message(firstPlayer.getName() + " " + firstPlayer.getRepresentation());
+
+                if (firstPlayer.getRepresentation().equals(" X ")) {
+                    secondPlayer = new ArtificialPlayer("TicTacBot", " O ");
+                    message("TitTacBot is playing " + secondPlayer.getRepresentation());
+                } else if (firstPlayer.getRepresentation().equals(" O ")) {
+                    secondPlayer = new ArtificialPlayer("TicTacBot", " X ");
+                    message("TitTacBot is playing " + secondPlayer.getRepresentation());
+                }
+                break;
+            case 3:
+                firstPlayer = new ArtificialPlayer("TicTacBotA", " O ");
+                secondPlayer = new ArtificialPlayer("TicTacBotB", " X ");
+                break;
         }
     }
 
@@ -180,24 +200,24 @@ public class TicTacToe {
      * @return (string) name of the player
      */
     private String initPlayerName() {
-        System.out.println("Enter player name: ");
-        String namePlayer = input.nextLine();
-        System.out.println("Welcome " + namePlayer + "! ");
+        message("Enter player name: ");
+        String namePlayer = stringInput();
+        message("Welcome " + namePlayer + "! ");
         return namePlayer;
     }
 
     /**
-     * Initialize the representation (x or o) choosen by the first player
+     * Initialize the representation (x or o) choose by the first player
      *
      * @return (string) representation of the player " X " or " O "
      */
     private String initChoicePlayer() {
-        System.out.println("Choose between X and O to play:");
-        String choicePlayer = input.nextLine().toUpperCase();
+        message("Choose between X and O to play:");
+        String choicePlayer = stringInput().toUpperCase();
 
         while (!choicePlayer.equals("X") && !choicePlayer.equals("O")) {
-            System.out.println("Invalid input, try again");
-            choicePlayer = input.nextLine().toUpperCase();
+            message("Invalid input, try again");
+            choicePlayer = stringInput().toUpperCase();
         }
         if (choicePlayer.equals("X")) {
             return " X ";
@@ -318,13 +338,67 @@ public class TicTacToe {
      */
     private boolean isOver() {
         if (diagDownWinner() || diagUpWinner() || rowWinner() || colWinner()) {
-            System.out.println(currentPlayer.getName() + " won!");
+            message(currentPlayer.getName() + " won!");
             return true;
         } else if (isFull()) {
-            System.out.println("The board is full.");
+            message("The board is full.");
             return true;
         }
         return false;
+    }
+
+
+    /**
+     * The player choose the type of players for the game (2 humans / 1 human vs 1 bot / 2 bots)
+     *
+     * @return (int) according what the player wants
+     */
+    private int typeOfPlayer() {
+        message("Type of player (type 1/2 or 3): ");
+        message("1: Both human player");
+        message("2: 1 human player vs 1 bot");
+        message("3: 2 bots");
+        int choiceOfPlayer = intInput();
+        stringInput();
+
+        boolean incorrect = true;
+
+        while (incorrect) {
+            if (choiceOfPlayer > 3 || choiceOfPlayer < 1) {
+                message("Invalid input: you must enter a number smaller than " + size + "and greater than 0.");
+                message("Enter again: ");
+                choiceOfPlayer = intInput();
+            } else {
+                incorrect = false;
+            }
+        }
+        return choiceOfPlayer;
+    }
+
+    /**
+     * Generate the move for the artificial player (random coordinates)
+     */
+    private void getMoveFromBot() {
+        coordinates=new ArrayList<>();
+        Random randomCoordinate = new Random();
+        boolean turnCorrrect = false;
+        ArrayList<Integer> moveFromBot = new ArrayList<>();
+
+        while (!turnCorrrect) {
+
+            int rowBot = randomCoordinate.nextInt(size);
+            int colBot = randomCoordinate.nextInt(size);
+
+            coordinates.add(0, rowBot);
+            coordinates.add(1, colBot);
+
+            if (board.get(rowBot).get(colBot).getRepresentation().equals("   ")) {
+                turnCorrrect = true;
+            } else {
+                message("This cell is already taken, choose another one");
+            }
+            setOwner(rowBot, colBot, currentPlayer);
+        }
     }
 
 }
