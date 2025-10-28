@@ -20,8 +20,8 @@ public class Cell {
         return this.representation;
     }
 
-    public String setRepresentation(String representation) {
-        this.representation = representation;
-        return representation;
-    }
+//    public String setRepresentation(String representation) {
+//        this.representation = representation;
+//        return representation;
+//    }
 }
